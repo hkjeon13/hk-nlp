@@ -1,4 +1,5 @@
 import json
+import os.path
 import random
 from dataclasses import dataclass
 from typing import Optional, Any, Tuple, List, Dict, Union
@@ -444,9 +445,10 @@ def get_prompt_dataset(dataset: Any, tokenizer: Union[PreTrainedTokenizerBase],
     return dataset.map(example_fn, batched=True, remove_columns=dataset.column_names)
 
 
-def load_prompt(name: str, prompt_path : str="prompt.json", encoding:str = 'utf-8'):
+def load_prompt(name: str, prompt_path : str= "prompt.json", encoding:str = 'utf-8'):
     prompt = load_json(prompt_path, encoding=encoding).get(name)
-
+    print(load_json(prompt_path, encoding=encoding))
+    raise ValueError
     if prompt is None:
         raise KeyError("Prompt가 정의되어 있지 않습니다.")
     prompt = nested_numeric(prompt)
@@ -463,18 +465,13 @@ def load_prompt(name: str, prompt_path : str="prompt.json", encoding:str = 'utf-
 def get_prompt_datasets_and_collator(
         tokenizer:Union[PreTrainedTokenizerBase, PreTrainedTokenizerFast],
         dataset_names: List[str], max_seq_len: int = 128) -> Tuple[Any, Any]:
-    """
-    >>> from transformers import AutoTokenizer
-    >>> tokenizer = AutoTokenizer.from_pretrained("klue/bert-base")
-    >>> dataset, collator = get_prompt_datasets_and_collator(tokenizer, dataset_names=['klue-ynat', 'nsmc'])
-    """
 
     from datasets import load_dataset, concatenate_datasets
 
     merged = []
     for name in dataset_names:
         inputs = load_dataset(*name.split("-"), split='train')
-        lines, map_dict, text_col = load_prompt(name)
+        lines, map_dict, text_col = load_prompt(name, prompt_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompt.json"))
         merged.append(
             get_prompt_dataset(
                 dataset=inputs,
@@ -490,4 +487,17 @@ def get_prompt_datasets_and_collator(
     merged = merged.shuffle()
     data_collator = DataCollatorForPromptLanguageModeling(tokenizer=tokenizer)
     return merged, data_collator
+
+
+if __name__=="__main__":
+     from transformers import AutoTokenizer
+     from torch.utils.data import DataLoader
+
+     tokenizer = AutoTokenizer.from_pretrained("klue/bert-base")
+     dataset, collator = get_prompt_datasets_and_collator(tokenizer, dataset_names=['klue-ynat', 'nsmc'], max_seq_len=128)
+     loader = DataLoader(dataset, 4, collate_fn=collator)
+     print(type(loader))
+     for d in loader:
+        print(d.keys())
+        break
 
