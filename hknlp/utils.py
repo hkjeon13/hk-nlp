@@ -31,3 +31,4 @@ def chk_dir_and_mkdir(fullpath: str) -> None:
     for dir in dirs[:-1]:
         if not os.path.isdir(dir):
             os.mkdir(dir)
+        #sss

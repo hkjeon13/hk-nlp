@@ -1,1 +1,1 @@
-__all__ = ["collator", "translation", "utils"]
+__all__ = ["prompt", "translation", "utils"]

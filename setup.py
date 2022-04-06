@@ -9,6 +9,6 @@ setup(name='hk-nlp',  # 패키지 명
       py_modules=['translation', 'collator', 'utils'],
       python_requires='>=3',
       install_requires=['transformers', 'datasets'],
-      package_data={"hknlp":["prompt.json"]},
+#      package_data={"hknlp":["prompt.json"]},
       packages=['hknlp']
       )

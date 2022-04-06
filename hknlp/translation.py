@@ -11,3 +11,5 @@ def translateWithGoogleAPI(text: str, sl: str = 'en', hl: str = 'en', tl: str = 
     return result
 
 
+
+
