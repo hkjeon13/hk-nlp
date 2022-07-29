@@ -7,9 +7,11 @@ from itertools import chain
 def _nrows_from_info(dataset: Any, split_name: str = 'train'):
     num_rows = -1
     if hasattr(dataset, "info") and hasattr(dataset.info, "splits"):
-        sp_info = dataset.info.splits.get(split_name)
-        if sp_info and hasattr(sp_info, "num_examples"):
-            num_rows = sp_info.num_examples
+        _split = dataset.info.splits
+        if _split is not None:
+            sp_info = _split.get(split_name)
+            if sp_info and hasattr(sp_info, "num_examples"):
+                num_rows = sp_info.num_examples
     return num_rows
 
 
