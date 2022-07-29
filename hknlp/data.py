@@ -43,7 +43,7 @@ class IterableDatasetWrapper(IterableDataset):
             _lengths.append(_length)
 
         if merge_method == "concatenate":
-            self.dataset = concatenate_datasets(_datasets)
+            self.dataset = chain(*[iter(d) for d in _datasets])
 
         elif merge_method == "interleave":
             self.dataset = interleave_datasets(_datasets, probabilities=interleave_probs)
@@ -60,3 +60,11 @@ class IterableDatasetWrapper(IterableDataset):
         gen = iter(self.dataset)
         for i in range(n):
             yield next(gen)
+
+
+if __name__ == "__main__":
+    from datasets import load_dataset
+    dataset1 = load_dataset("psyche/kowiki", streaming=True)
+    dataset2 = load_dataset("psyche/common_crawl", "1", streaming=True)
+    dataset = IterableDatasetWrapper([dataset1['train'], dataset2['train']], split_names=['train', 'train'], merge_method='concatenate')
+    print(len(dataset))
