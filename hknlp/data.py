@@ -1,6 +1,6 @@
 from torch.utils.data import IterableDataset
 from typing import Optional, Any, List
-from datasets import interleave_datasets
+from datasets import interleave_datasets, concatenate_datasets
 from itertools import chain
 
 
@@ -18,18 +18,34 @@ class IterableDatasetWrapper(IterableDataset):
                  datasets: List[IterableDataset],
                  split_names: List[str] = None,
                  length: Optional[int] = None,
-                 data_format: str = "torch") -> None:
+                 max_rows: int = 1000000,
+                 data_format: str = "torch",
+                 merge_method: str = "concatenate",
+                 interleave_probs: List[str] = None,
+                 each_data_shuffle: bool = False) -> None:
+
         super(IterableDatasetWrapper, self).__init__()
         split_names = ['train']*len(datasets) if split_names is None else split_names
+
         assert len(datasets) == len(split_names)
+
+        if isinstance(interleave_probs, list):
+            assert len(interleave_probs) == len(datasets)
+
         _datasets, _lengths = [], []
         for dataset, split_name in zip(datasets, split_names):
             _length = _nrows_from_info(dataset, split_name)
-            _length = 1000000 if _length < 0 else _length
+            _length = max_rows if _length < 0 else _length
+            dataset = dataset.shuffle() if each_data_shuffle else dataset
             _datasets.append(dataset.with_format(data_format))
             _lengths.append(_length)
 
-        self.dataset = chain(*[interleave_datasets([d]) for d in _datasets])
+        if merge_method == "concatenate":
+            self.dataset = concatenate_datasets(_datasets)
+
+        elif merge_method == "interleave":
+            self.dataset = interleave_datasets(_datasets, probabilities=interleave_probs)
+
         self.length = sum(_lengths) if length is None else length
 
     def __iter__(self):
