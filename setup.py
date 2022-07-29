@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='hk-nlp',  # 패키지 명
-      version='1.0.1.6',
+      version='1.0.1.7',
       description='personal package',
       author='psyche',
       author_email='hkjeon13@gmail.com',

@@ -51,15 +51,13 @@ class IterableDatasetWrapper(IterableDataset):
         self.length = sum(_lengths) if length is None else length
 
     def __iter__(self):
-        return iter(self.dataset)
+        for i,data in enumerate(self.dataset):
+            if i+1 >= self.length:
+                return data
+            yield data
 
     def __len__(self) -> int:
         return self.length
-
-    def take(self, n: int):
-        gen = iter(self.dataset)
-        for i in range(n):
-            yield next(gen)
 
 
 if __name__ == "__main__":
