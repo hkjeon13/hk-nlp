@@ -43,7 +43,7 @@ class IterableDatasetWrapper(IterableDataset):
             _lengths.append(_length)
 
         if merge_method == "concatenate":
-            self.dataset = chain(*[iter(d) for d in _datasets])
+            self.dataset = chain(*[interleave_datasets([d]) for d in _datasets])
 
         elif merge_method == "interleave":
             self.dataset = interleave_datasets(_datasets, probabilities=interleave_probs)
@@ -51,10 +51,7 @@ class IterableDatasetWrapper(IterableDataset):
         self.length = sum(_lengths) if length is None else length
 
     def __iter__(self):
-        for i,data in enumerate(self.dataset):
-            if i+1 >= self.length:
-                return data
-            yield data
+        return iter(self.dataset)
 
     def __len__(self) -> int:
         return self.length
