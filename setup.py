@@ -6,7 +6,11 @@ setup(name='hk-nlp',  # 패키지 명
       author='psyche',
       author_email='hkjeon13@gmail.com',
       license='MIT',
-      py_modules=['translation', 'collator', 'utils', 'data', 'IterableDatasetWrapper', 'SynonymReplacement', 'spelling'],
+      py_modules=[
+            'translation', 'collator', 'utils', 'data',
+            'IterableDatasetWrapper', 'SynonymReplacement',
+            'spelling', 'spell_check'
+      ],
       python_requires='>=3',
       install_requires=['transformers', 'datasets', 'requests'],
       package_data={"hknlp": ["data/prompt.json", "data/synonyms.json"]},
