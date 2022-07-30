@@ -1,6 +1,10 @@
 from typing import List
 import random
 import json
+import os
+
+
+SYN_PATH = os.path.join(os.path.abspath(__file__), "data/synonyms.json")
 
 
 def read_json(path: str) -> dict or list:
@@ -9,8 +13,8 @@ def read_json(path: str) -> dict or list:
 
 
 class SynonymReplacement:
-    def __init__(self, tokenize_function, synonym_path: str = "data/synonyms.json"):
-        self.synonyms = read_json(synonym_path)
+    def __init__(self, tokenize_function):
+        self.synonyms = read_json(SYN_PATH)
         self.rng = random.SystemRandom()
         self.tokenize = tokenize_function
 
