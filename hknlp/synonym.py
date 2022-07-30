@@ -4,7 +4,7 @@ import json
 import os
 
 
-SYN_PATH = os.path.join(os.path.abspath(__file__), "data/synonyms.json")
+SYN_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/synonyms.json")
 
 
 def read_json(path: str) -> dict or list:
