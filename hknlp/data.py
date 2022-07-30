@@ -1,6 +1,6 @@
 from torch.utils.data import IterableDataset
 from typing import Optional, Any, List
-from datasets import interleave_datasets, concatenate_datasets
+from datasets import interleave_datasets
 from itertools import chain
 
 
@@ -43,7 +43,7 @@ class IterableDatasetWrapper(IterableDataset):
             _lengths.append(_length)
 
         if merge_method == "concatenate":
-            self.dataset = chain(*[interleave_datasets([d]) for d in _datasets])
+            self.dataset = chain(*[iter(interleave_datasets([d])) for d in _datasets])
 
         elif merge_method == "interleave":
             self.dataset = interleave_datasets(_datasets, probabilities=interleave_probs)
@@ -51,7 +51,12 @@ class IterableDatasetWrapper(IterableDataset):
         self.length = sum(_lengths) if length is None else length
 
     def __iter__(self):
-        return iter(self.dataset)
+        _gen = iter(self.dataset)
+        for i in range(self.length):
+            try:
+                yield next(_gen)
+            except StopIteration:
+                break
 
     def __len__(self) -> int:
         return self.length
