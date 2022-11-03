@@ -1,7 +1,7 @@
+from datasets.combine import concatenate_datasets
 from torch.utils.data import IterableDataset
 from typing import Optional, Any, List
 from datasets import interleave_datasets
-from itertools import chain
 
 
 def _nrows_from_info(dataset: Any, split_name: str = 'train'):
@@ -43,7 +43,7 @@ class IterableDatasetWrapper(IterableDataset):
             _lengths.append(_length)
 
         if merge_method == "concatenate":
-            self.dataset = chain(*[iter(interleave_datasets([d])) for d in _datasets])
+            self.dataset = concatenate_datasets(_datasets)
 
         elif merge_method == "interleave":
             self.dataset = interleave_datasets(_datasets, probabilities=interleave_probs)
@@ -60,6 +60,14 @@ class IterableDatasetWrapper(IterableDataset):
 
     def __len__(self) -> int:
         return self.length
+
+    def take(self, n:int):
+        _gen = iter(self.dataset)
+        for i in range(min(self.length, n)):
+            try:
+                yield next(_gen)
+            except StopIteration:
+                break
 
 
 if __name__ == "__main__":
